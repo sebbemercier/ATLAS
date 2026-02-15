@@ -1,0 +1,16 @@
+# Échantillon trilingue E-commerce
+# FR
+L'article est en stock et prêt pour l'expédition.
+Découvrez notre nouvelle collection de chaussures de sport.
+Profitez d'une réduction de 20% sur tout le catalogue.
+Comment puis-je suivre ma commande ?
+# NL
+Het artikel is op voorraad en klaar pour verzending.
+Ontdek onze nieuwe collectie sportschoenen.
+Geniet van 20% korting op la hele catalogus.
+Hoe kan ik mijn bestelling volgen?
+# EN
+The item is in stock and ready for shipping.
+Discover our new collection of sports shoes.
+Enjoy a 20% discount on the entire catalog.
+How can I track my order?

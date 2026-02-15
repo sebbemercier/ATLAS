@@ -1,3 +1,7 @@
+# Copyright 2026 The OpenSLM Project
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List, Optional
