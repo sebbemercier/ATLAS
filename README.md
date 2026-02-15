@@ -1,5 +1,5 @@
 # ATLAS - Inventory & Knowledge SLM
-Le pilier "Commerce" de CEDRA. Responsable de la fiabilité des données produits.
+Le pilier "Commerce". Responsable de la fiabilité des données produits.
 
 ## Rôle
 - Génération de requêtes CQL pour ScyllaDB.
