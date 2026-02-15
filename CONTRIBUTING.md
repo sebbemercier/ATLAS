@@ -1,15 +1,23 @@
-# Guide de Contribution The OpenSLM Project
+# Contributing to ATLAS
 
-Merci de vouloir aider à construire le futur du commerce digital rapide !
+Thank you for your interest in contributing to the ATLAS SLM!
 
-## Comment contribuer ?
-1. **Améliorer un SLM** : Chaque modèle (ATLAS, MIRAI, MUSE, IRIS) a sa propre logique dans son dossier.
-2. **Nouveaux Datasets** : Ajoute des exemples d'instructions dans `/data`.
-3. **Connecteurs** : Aide-nous à connecter d'autres bases de données que ScyllaDB.
+## Specific Focus
+ATLAS is responsible for data retrieval and knowledge management. Contributions are welcome in the following areas:
+- New ScyllaDB/CQL query optimization patterns.
+- Improved web search and citation scrapers.
+- Data normalization logic.
 
-## Installation
-Nous utilisons `uv` pour une performance maximale.
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+## Process
+1. Fork the repository.
+2. Create a branch for your feature.
+3. Ensure your code follows the project's style and includes tests.
+4. Submit a Pull Request.
+
+## Environment
+Use \`uv\` for development:
+\`\`\`bash
 uv venv
-```
+source .venv/bin/activate
+uv pip install -e .
+\`\`\`
