@@ -7,8 +7,9 @@ import datetime
 from common.models.product import ProductBase
 
 class AtlasAgent:
-    def __init__(self, db_adapter=None):
+    def __init__(self, db_adapter=None, tokenizer_path="models/ecommerce_tokenizer.model"):
         self.db = db_adapter
+        self.sp = spm.SentencePieceProcessor(model_file=tokenizer_path)
         self.sources = []
 
     def handle_query(self, sku):
