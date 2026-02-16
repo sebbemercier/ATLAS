@@ -41,13 +41,21 @@ class AtlasAgent:
         return self.format_output(sku, stock, weight, material)
 
     def search_internet_fallback(self, sku):
-        """Simulation du fallback 'Perplexity'"""
-        # Dans la version finale, ceci appellerait un module de scraping/search
-        return {
-            "weight": "850g",
-            "material": "Cuir et Mesh",
-            "url": "https://nike.com/pdp/air-max-123"
+        """Simulation de recherche web type 'Perplexity' pour les attributs manquants"""
+        # Dans un scénario réel, on utiliserait un scraper ou une API de recherche
+        fallback_data = {
+            "NIKE-123": {
+                "weight": "320g",
+                "material": "Flyknit recyclé",
+                "url": "https://www.nike.com/fr/t/air-max-flyknit-racer"
+            },
+            "GENERIC-ITEM": {
+                "weight": "500g",
+                "material": "Standard",
+                "url": "https://google.com/search?q=product+specs"
+            }
         }
+        return fallback_data.get(sku, fallback_data["GENERIC-ITEM"])
 
     def format_output(self, sku, stock, weight, material):
         res = f"Fiche Produit : {sku}\n"
