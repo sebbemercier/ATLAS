@@ -4,11 +4,11 @@
 
 import datetime
 import sentencepiece as spm
-from ATLAS.database import ScyllaAdapter
+from ATLAS.database.factory import get_db_adapter
 
 class AtlasAgent:
     def __init__(self, db_adapter=None, tokenizer_path="models/ecommerce_tokenizer.model"):
-        self.db = db_adapter or ScyllaAdapter()
+        self.db = db_adapter or get_db_adapter()
         self.sp = spm.SentencePieceProcessor(model_file=tokenizer_path)
         self.sources = []
 
