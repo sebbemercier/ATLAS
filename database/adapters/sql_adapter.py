@@ -12,9 +12,11 @@ class SQLProduct(SQLModel, table=True):
     weight: Optional[float] = None
     material: Optional[str] = None
 
+from ATLAS.database.config import settings
+
 class SQLAdapter(BaseAdapter):
-    def __init__(self, database_url="sqlite:///./inventory.db"):
-        self.engine = create_engine(database_url)
+    def __init__(self):
+        self.engine = create_engine(settings.DATABASE_URL)
 
     def init_db(self):
         SQLModel.metadata.create_all(self.engine)

@@ -1,23 +1,12 @@
 # Copyright 2026 The OpenSLM Project
-# Licensed under the Apache License, Version 2.0
-# http://www.apache.org/licenses/LICENSE-2.0
-
-import os
 from cassandra.cqlengine import columns, models, connection
 from cassandra.cluster import Cluster
-from pydantic_settings import BaseSettings
+from ATLAS.database.config import settings
+from ATLAS.database.base import BaseAdapter
+from common.models.product import ProductBase
 
-class Settings(BaseSettings):
-    scylla_host: str = "127.0.0.1"
-    scylla_keyspace: str = "openslm_inventory"
-
-    class Config:
-        env_file = ".env"
-
-settings = Settings()
-
-class ProductModel(models.Model):
-    __keyspace__ = settings.scylla_keyspace
+class ScyllaProductModel(models.Model):
+    __keyspace__ = settings.SCYLLA_KEYSPACE
     sku = columns.Text(primary_key=True)
     name = columns.Text()
     stock_count = columns.Integer(default=0)
@@ -25,36 +14,26 @@ class ProductModel(models.Model):
     material = columns.Text()
     supplier_url = columns.Text()
 
-def init_db():
-    """Initialise la connexion et crée le keyspace/table si besoin"""
-    cluster = Cluster([settings.scylla_host])
-    session = cluster.connect()
-    
-    # Création du keyspace
-    session.execute(f"""
-        CREATE KEYSPACE IF NOT EXISTS {settings.scylla_keyspace} 
-        WITH replication = {{'class': 'SimpleStrategy', 'replication_factor': '1'}}
-    """)
-    
-    # Connexion de cqlengine
-    connection.setup([settings.scylla_host], settings.scylla_keyspace, lazy_connect=True)
-    connection.get_session().execute(f"USE {settings.scylla_keyspace}")
-    
-    # Création des tables
-    from cassandra.cqlengine.management import sync_table
-    sync_table(ProductModel)
-    print(f"ScyllaDB: Table ProductModel synchronisée dans {settings.scylla_keyspace}")
-
-class ScyllaAdapter:
+class ScyllaAdapter(BaseAdapter):
     def __init__(self):
         try:
-            connection.setup([settings.scylla_host], settings.scylla_keyspace, lazy_connect=True)
+            connection.setup([settings.SCYLLA_HOST], settings.SCYLLA_KEYSPACE, lazy_connect=True)
         except Exception as e:
             print(f"Erreur connexion ScyllaDB: {e}")
 
-    def get_product(self, sku):
-        try:
-            return ProductModel.objects(sku=sku).first()
-        except Exception as e:
-            print(f"Erreur requête ScyllaDB: {e}")
-            return None
+    def init_db(self):
+        cluster = Cluster([settings.SCYLLA_HOST])
+        session = cluster.connect()
+        session.execute(f"CREATE KEYSPACE IF NOT EXISTS {settings.SCYLLA_KEYSPACE} WITH replication = {{'class': 'SimpleStrategy', 'replication_factor': '1'}}")
+        connection.setup([settings.SCYLLA_HOST], settings.SCYLLA_KEYSPACE, lazy_connect=True)
+        from cassandra.cqlengine.management import sync_table
+        sync_table(ScyllaProductModel)
+        print(f"ScyllaDB: Table synchronisée dans {settings.SCYLLA_KEYSPACE}")
+
+    def get_product(self, sku: str) -> ProductBase:
+        raw = ScyllaProductModel.objects(sku=sku).first()
+        if raw:
+            # Conversion brute vers Pydantic
+            data = {k: getattr(raw, k) for k in ['sku', 'name', 'stock_count', 'weight', 'material', 'supplier_url']}
+            return ProductBase(**data)
+        return None

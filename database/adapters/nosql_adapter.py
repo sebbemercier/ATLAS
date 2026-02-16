@@ -15,16 +15,18 @@ class NoSQLProduct(Document):
     class Settings:
         name = "products"
 
+from ATLAS.database.config import settings
+
 class NoSQLAdapter(BaseAdapter):
-    def __init__(self, mongodb_url="mongodb://localhost:27017", db_name="openslm"):
-        self.client = AsyncIOMotorClient(mongodb_url)
-        self.db_name = db_name
+    def __init__(self):
+        self.client = AsyncIOMotorClient(settings.MONGODB_URL)
+        self.db_name = settings.MONGODB_NAME
 
     def init_db(self):
         # Beanie est asynchrone, on utilise une petite boucle pour l'init
         loop = asyncio.get_event_loop()
         loop.run_until_complete(init_beanie(database=self.client[self.db_name], document_models=[NoSQLProduct]))
-        print("NoSQL: MongoDB connecté et initialisé.")
+        print(f"NoSQL: MongoDB connecté à {self.db_name}")
 
     def get_product(self, sku: str) -> ProductBase:
         loop = asyncio.get_event_loop()
