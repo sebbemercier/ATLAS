@@ -9,6 +9,8 @@ Le pilier "Commerce". Responsable de la fiabilité des données produits.
 ## Installation & Usage
 ```bash
 uv pip install -r requirements.txt
+# Initialiser la base de données (nécessite ScyllaDB lancé)
+uv run init_db.py
 # Entraîner le tokenizer
 uv run train_tokenizer.py
 # Lancer le modèle

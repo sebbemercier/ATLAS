@@ -3,52 +3,46 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 
 import datetime
-
-from common.models.product import ProductBase
+import sentencepiece as spm
+from ATLAS.database import ScyllaAdapter
 
 class AtlasAgent:
     def __init__(self, db_adapter=None, tokenizer_path="models/ecommerce_tokenizer.model"):
-        self.db = db_adapter
+        self.db = db_adapter or ScyllaAdapter()
         self.sp = spm.SentencePieceProcessor(model_file=tokenizer_path)
         self.sources = []
 
     def handle_query(self, sku):
         self.sources = []
-        print(f"
---- OpenSLM Query for SKU: {sku} ---")
+        print(f"\n--- OpenSLM Query for SKU: {sku} ---")
         
-        # 1. Database Check
-        product = self.get_product_from_db(sku)
+        # 1. Database Check (Using ORM)
+        product = self.db.get_product(sku)
         
-        # 2. Logic: Stock from DB only, Attributes can fallback to Web
-        stock = product.stock_count if product else "UNKNOWN"
+        # 2. Logic: Stock from DB only
+        stock = product.stock_count if product else "UNKNOWN (Not in DB)"
         weight = product.weight if product else None
+        material = product.material if product else None
         
-        if not weight:
-            web_data = self.web_fallback(sku)
-            weight = web_data.get('weight')
+        # 3. Fallback for attributes only
+        if not weight or not material:
+            print(f"ATLAS: Attributes missing for {sku}. Checking Web Fallback...")
+            web_data = self.search_internet_fallback(sku)
+            
+            weight = weight or web_data.get('weight')
+            material = material or web_data.get('material')
+            
             if web_data.get('url'):
                 self.sources.append(f"Web Source: {web_data['url']}")
         
         if product:
-            self.sources.append("Local Database")
+            self.sources.append("Local ScyllaDB (Verified Inventory)")
             
-        return self.format_output(sku, stock, weight)
-
-    def query_scylla(self, sku):
-        """Simule SELECT stock_count, weight, material FROM product_details WHERE sku = ..."""
-        # Simulation d'un produit qui a du stock mais pas de détails techniques
-        if sku == "NIKE-123":
-            return {
-                "sku": "NIKE-123",
-                "stock_count": 42,
-                "weight": None, # Manquant !
-                "material": "Synthétique"
-            }
-        return None
+        return self.format_output(sku, stock, weight, material)
 
     def search_internet_fallback(self, sku):
         """Simulation du fallback 'Perplexity'"""
+        # Dans la version finale, ceci appellerait un module de scraping/search
         return {
             "weight": "850g",
             "material": "Cuir et Mesh",
@@ -56,20 +50,13 @@ class AtlasAgent:
         }
 
     def format_output(self, sku, stock, weight, material):
-        res = f"Fiche Produit : {sku}
-"
-        res += f"📦 STOCK : {stock} (Source: ScyllaDB uniquement)
-"
-        res += f"⚖️ POIDS : {weight}
-"
-        res += f"🧵 MATIÈRE : {material}
-"
-        res += "
-SOURCES ET CITATIONS :
-"
+        res = f"Fiche Produit : {sku}\n"
+        res += f"📦 STOCK : {stock} (Source: ScyllaDB)\n"
+        res += f"⚖️ POIDS : {weight or 'N/A'}\n"
+        res += f"🧵 MATIÈRE : {material or 'N/A'}\n"
+        res += "\nSOURCES ET CITATIONS :\n"
         for i, s in enumerate(self.sources, 1):
-            res += f"[{i}] {s}
-"
+            res += f"[{i}] {s}\n"
         return res
 
 if __name__ == "__main__":
