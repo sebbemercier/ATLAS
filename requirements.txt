@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+transformers
+torch
+datasets
+sentencepiece
+sqlmodel
+cassandra-driver
+python-dotenv
+accelerate
+protobuf
